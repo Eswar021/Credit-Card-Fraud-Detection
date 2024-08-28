@@ -1,10 +1,31 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
+import subprocess
+
+# Check if required libraries are installed
+def install_requirements():
+    if not os.path.exists('requirements.txt'):
+        st.error("requirements.txt file not found. Please add it to the project directory.")
+        return
+    
+    try:
+        subprocess.check_call([os.sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+        st.success("All required packages have been installed.")
+    except subprocess.CalledProcessError as e:
+        st.error(f"Failed to install required packages: {str(e)}")
+
+# Ensure the environment has required packages
+install_requirements()
 
 # Load the model
-with open('Model.pkl', 'rb') as file:
-    model = pickle.load(file)
+try:
+    with open('Model.pkl', 'rb') as file:
+        model = pickle.load(file)
+except Exception as e:
+    st.error(f"Failed to load the model: {str(e)}")
+    st.stop()
 
 # Define the Streamlit app
 st.title("Credit Card Fraud Detection")
@@ -16,19 +37,16 @@ inputs = []
 for i in range(30):
     inputs.append(st.number_input(f"Feature {i+1}", value=0.0))
 
-print("inputs are ------", inputs)
 # Convert input to numpy array
 input_array = np.array(inputs).reshape(1, -1)
 
-print("converted are inputs are ------",input_array)
-
 # Predict button
 if st.button("Predict"):
-    prediction = model.predict(input_array)
-    
-    if prediction[0] == 1:
-        st.error("This transaction is likely fraudulent.")
-    else:
-        st.success("This transaction is likely not fraudulent.")
-
-# Run the app with: streamlit run app.py
+    try:
+        prediction = model.predict(input_array)
+        if prediction[0] == 1:
+            st.error("This transaction is likely fraudulent.")
+        else:
+            st.success("This transaction is likely not fraudulent.")
+    except Exception as e:
+        st.error(f"Prediction failed: {str(e)}")
