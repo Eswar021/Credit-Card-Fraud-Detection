@@ -9,12 +9,6 @@ def install_requirements():
     if not os.path.exists('requirements.txt'):
         st.error("requirements.txt file not found. Please add it to the project directory.")
         return
-    
-    try:
-        subprocess.check_call([os.sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
-        st.success("All required packages have been installed.")
-    except subprocess.CalledProcessError as e:
-        st.error(f"Failed to install required packages: {str(e)}")
 
 # Ensure the environment has required packages
 install_requirements()
